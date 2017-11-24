@@ -1,0 +1,24 @@
+---
+- name: Install unattended-upgrades
+  apt:
+    name: 'unattended-upgrades'
+    state: 'present'
+    update_cache: 'yes'
+  register: ansible_role_apt_cron_installed
+
+- name: Install configs to /etc/apt/apt.conf.d/
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/apt/apt.conf.d/{{ item | basename }}"
+    mode: 0644
+    owner: 'root'
+    group: 'root'
+  with_fileglob: "{{ ansible_role_apt_cron_d }}/*"
+  register: ansible_role_apt_cron_installed_cfgs
+
+- name: (re)start service and enable on boot
+  service:
+    name: 'unattended-upgrades'
+    state: 'restarted'
+    enabled: 'yes'
+  when: ansible_role_apt_cron_installed.changed or ansible_role_apt_cron_installed_cfgs.changed
