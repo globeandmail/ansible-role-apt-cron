@@ -6,6 +6,11 @@
     update_cache: 'yes'
   register: ansible_role_apt_cron_installed
 
+- name: Remove default 20auto-upgrades apt.conf.d file
+  file:
+    path: "/etc/apt/apt.conf.d/20auto-upgrades"
+    state: "absent"
+
 - name: Install configs to /etc/apt/apt.conf.d/
   copy:
     src: "{{ item }}"
